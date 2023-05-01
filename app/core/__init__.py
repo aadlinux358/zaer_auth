@@ -1,0 +1,1 @@
+"""Auth core application package."""

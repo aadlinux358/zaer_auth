@@ -1,0 +1,58 @@
+[tool.poetry]
+name = "zaer-auth"
+version = "0.1.0"
+description = "Zaer Auth app"
+authors = ["Abel Alazar Dirar <aadlinux358@gmail.com>"]
+readme = "README.md"
+packages = [{include = "zaer_auth"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = {extras = ["all"], version = "^0.95.1"}
+alembic = "^1.10.4"
+asyncpg = "^0.27.0"
+sqlmodel = "^0.0.8"
+fastapi-jwt-auth = "^0.5.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+cryptography = "^40.0.2"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.2.0"
+flake8 = "^6.0.0"
+black = "^23.3.0"
+isort = "^5.12.0"
+jedi = "^0.18.2"
+flake8-pyproject = "^1.2.3"
+autoflake = "^2.1.1"
+pydocstyle = "^6.3.0"
+toml = "^0.10.2"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.3.1"
+pytest-asyncio = "^0.21.0"
+coverage = "^7.2.5"
+aiosqlite = "^0.19.0"
+httpx = "^0.24.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.flake8]
+exclude = ".venv, .git, __pycache__"
+max-line-length = "88"
+extend-ignore = "E203"
+
+[tool.isort]
+profile = "black"
+
+[tool.autoflake]
+in-place = true
+remove-all-unused-imports = true
+remove-unused-variables = true
+imports = []
+
+[tool.mypy]
+plugins = "pydantic.mypy"
