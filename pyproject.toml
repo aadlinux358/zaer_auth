@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Zaer Auth app"
 authors = ["Abel Alazar Dirar <aadlinux358@gmail.com>"]
 readme = "README.md"
-packages = [{include = "zaer_auth"}]
+packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
