@@ -28,7 +28,6 @@ async def create_user(payload: UserCreate, users: UserCRUD = Depends(get_user_cr
 async def read_many(users: UserCRUD = Depends(get_user_crud)):
     """Read many users."""
     user_list = await users.read_many()
-
     return user_list
 
 

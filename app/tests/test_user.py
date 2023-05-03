@@ -111,6 +111,7 @@ async def test_get_users_list(client: AsyncClient, session: AsyncSession):
 
     assert response.status_code == status.HTTP_200_OK, response.json()
     assert response.json()["count"] == 3
+    assert len(response.json()["result"]) == 3
     assert isinstance(response.json()["result"], list)
 
 

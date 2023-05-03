@@ -35,8 +35,9 @@ class UserCRUD:
         """Read many user records."""
         statement = select(UserDB)
         result = await self.session.exec(statement)  # type: ignore
+        all_result = result.all()
 
-        return UserReadMany(count=len(result.all()), result=result.all())
+        return UserReadMany(count=len(all_result), result=all_result)
 
     async def read_by_uid(self, user_uid: UUID) -> Optional[UserDB]:
         """Read user by uid."""
