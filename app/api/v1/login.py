@@ -43,7 +43,7 @@ async def login(
             detail="invalid username or password.",
         )
     user = await users.update_user(
-        user.uid, payload=UserUpdate(last_login=datetime.utcnow(), modified_by=user.uid)
+        user.uid, payload=UserUpdate(last_login=datetime.now(), modified_by=user.uid)
     )
 
     if user is None:
