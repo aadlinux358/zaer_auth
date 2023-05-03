@@ -18,6 +18,7 @@ class UserBase(SQLModel):
     is_superuser: bool = Field(default=False, nullable=False)
     is_staff: bool = Field(default=True, nullable=False)
     is_active: bool = Field(default=True, nullable=False)
+    last_login: Optional[datetime] = Field(nullable=True)
 
 
 class UserCreate(UserBase):
@@ -39,6 +40,7 @@ class UserUpdate(SQLModel):
     is_superuser: Optional[bool]
     is_staff: Optional[bool]
     is_active: Optional[bool]
+    last_login: Optional[datetime]
     modified_by: UUID
 
 
@@ -47,7 +49,6 @@ class UserDB(Base, UserBase, table=True):
 
     __tablename__: ClassVar[Union[str, Callable[..., str]]] = "auth_user"
     hashed_password: str = Field(max_length=500, nullable=False)
-    last_login: Optional[datetime] = Field(nullable=True)
 
 
 class UserRead(UserBase):

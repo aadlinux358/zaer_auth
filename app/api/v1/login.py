@@ -1,10 +1,13 @@
 """User login api module."""
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_jwt_auth import AuthJWT  # type: ignore
 from pydantic import BaseModel
 
 from app.api.v1.dependencies import get_user_crud
 from app.api.v1.user_crud import UserCRUD
+from app.models.user import UserRead, UserUpdate
 from app.security import password
 
 router = APIRouter(prefix="/login", tags=["login"])
@@ -21,6 +24,7 @@ class LoginResponse(BaseModel):
     """Login response model."""
 
     access_token: str
+    user: UserRead
 
 
 @router.post("", response_model=LoginResponse)
@@ -38,6 +42,14 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="invalid username or password.",
         )
+    user = await users.update_user(
+        user.uid, payload=UserUpdate(last_login=datetime.utcnow(), modified_by=user.uid)
+    )
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="user not found."
+        )
 
     access_token = Authorize.create_access_token(subject=str(user.uid))
-    return LoginResponse(access_token=access_token)
+    return LoginResponse(access_token=access_token, user=UserRead(**user.dict()))

@@ -63,10 +63,13 @@ class UserCRUD:
             return None
 
         values = payload.dict(exclude_unset=True)
-        values["hashed_password"] = password.get_password_hash(values["password"])
-        values["first_name"] = values["first_name"].strip().lower()
-        values["last_name"] = values["last_name"].strip().lower()
-        values.pop("password")
+        if values.get("password"):
+            values["hashed_password"] = password.get_password_hash(values["password"])
+            values.pop("password")
+        if values.get("first_name"):
+            values["first_name"] = values["first_name"].strip().lower()
+        if values.get("last_name"):
+            values["last_name"] = values["last_name"].strip().lower()
         for k, v in values.items():
             setattr(user, k, v)
 
