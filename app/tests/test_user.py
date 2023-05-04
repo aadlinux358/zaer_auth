@@ -110,8 +110,10 @@ async def test_get_users_list(client: AsyncClient, session: AsyncSession):
     response = await client.get(f"{ENDPOINT}")
 
     assert response.status_code == status.HTTP_200_OK, response.json()
-    assert response.json()["count"] == 3
-    assert len(response.json()["result"]) == 3
+    assert (
+        response.json()["count"] == 4
+    )  # 1 user is created for authentication in conftest
+    assert len(response.json()["result"]) == 4
     assert isinstance(response.json()["result"], list)
 
 

@@ -3,6 +3,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_jwt_auth import AuthJWT  # type: ignore
 from sqlalchemy.exc import IntegrityError
 
 from app.api.v1.dependencies import get_user_crud
@@ -12,11 +13,13 @@ from app.models.user import UserCreate, UserRead, UserReadMany, UserUpdate
 router = APIRouter(prefix="/users", tags=["user"])
 
 UserCRUDDep = Annotated[UserCRUD, Depends(get_user_crud)]
+AuthJWTDep = Annotated[AuthJWT, Depends()]
 
 
 @router.post("", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-async def create_user(payload: UserCreate, users: UserCRUDDep):
+async def create_user(payload: UserCreate, users: UserCRUDDep, Authorize: AuthJWTDep):
     """Create User."""
+    Authorize.jwt_required()
     try:
         user = await users.create_user(payload)
     except IntegrityError:
@@ -28,15 +31,17 @@ async def create_user(payload: UserCreate, users: UserCRUDDep):
 
 
 @router.get("", response_model=UserReadMany)
-async def read_many(users: UserCRUDDep):
+async def read_many(users: UserCRUDDep, Authorize: AuthJWTDep):
     """Read many users."""
+    Authorize.jwt_required()
     user_list = await users.read_many()
     return user_list
 
 
 @router.get("/{user_uid}", response_model=UserRead)
-async def read_by_uid(user_uid: UUID, users: UserCRUDDep):
+async def read_by_uid(user_uid: UUID, users: UserCRUDDep, Authorize: AuthJWTDep):
     """Read user by uid."""
+    Authorize.jwt_required()
     user = await users.read_by_uid(user_uid)
     if user is None:
         raise HTTPException(
@@ -47,11 +52,10 @@ async def read_by_uid(user_uid: UUID, users: UserCRUDDep):
 
 @router.patch("/{user_uid}", response_model=UserRead)
 async def update_user(
-    user_uid: UUID,
-    payload: UserUpdate,
-    users: UserCRUDDep,
+    user_uid: UUID, payload: UserUpdate, users: UserCRUDDep, Authorize: AuthJWTDep
 ):
     """Update user."""
+    Authorize.jwt_required()
     if payload.first_name:
         payload.first_name.strip().lower()
     if payload.last_name:
