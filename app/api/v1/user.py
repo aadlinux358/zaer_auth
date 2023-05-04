@@ -1,5 +1,5 @@
 """User api endpoints module."""
-from typing import Annotated
+from typing import Annotated, Union
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -16,10 +16,32 @@ UserCRUDDep = Annotated[UserCRUD, Depends(get_user_crud)]
 AuthJWTDep = Annotated[AuthJWT, Depends()]
 
 
+async def superuser_or_error(sub: Union[str, int, None], users: UserCRUD) -> None:
+    """Check if user is superuser."""
+    try:
+        auth_user_uid = UUID(sub) if isinstance(sub, str) else UUID(None)
+    except (ValueError, AttributeError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="invalid auth subject",
+        )
+    user = await users.read_by_uid(auth_user_uid)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="user not found."
+        )
+    if not user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="no sufficient privileges."
+        )
+
+
 @router.post("", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 async def create_user(payload: UserCreate, users: UserCRUDDep, Authorize: AuthJWTDep):
     """Create User."""
     Authorize.jwt_required()
+    sub = Authorize.get_jwt_subject()
+    await superuser_or_error(sub, users)
     try:
         user = await users.create_user(payload)
     except IntegrityError:
@@ -34,6 +56,8 @@ async def create_user(payload: UserCreate, users: UserCRUDDep, Authorize: AuthJW
 async def read_many(users: UserCRUDDep, Authorize: AuthJWTDep):
     """Read many users."""
     Authorize.jwt_required()
+    sub = Authorize.get_jwt_subject()
+    await superuser_or_error(sub, users)
     user_list = await users.read_many()
     return user_list
 
@@ -42,6 +66,8 @@ async def read_many(users: UserCRUDDep, Authorize: AuthJWTDep):
 async def read_by_uid(user_uid: UUID, users: UserCRUDDep, Authorize: AuthJWTDep):
     """Read user by uid."""
     Authorize.jwt_required()
+    sub = Authorize.get_jwt_subject()
+    await superuser_or_error(sub, users)
     user = await users.read_by_uid(user_uid)
     if user is None:
         raise HTTPException(
@@ -56,6 +82,9 @@ async def update_user(
 ):
     """Update user."""
     Authorize.jwt_required()
+    sub = Authorize.get_jwt_subject()
+    await superuser_or_error(sub, users)
+
     if payload.first_name:
         payload.first_name.strip().lower()
     if payload.last_name:
