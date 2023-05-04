@@ -1,5 +1,6 @@
 """User login api module."""
 from datetime import datetime
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_jwt_auth import AuthJWT  # type: ignore
@@ -11,6 +12,8 @@ from app.models.user import UserRead, UserUpdate
 from app.security import password
 
 router = APIRouter(prefix="/login", tags=["login"])
+
+UserCRUDDep = Annotated[UserCRUD, Depends(get_user_crud)]
 
 
 class LoginCredential(BaseModel):
@@ -30,8 +33,8 @@ class LoginResponse(BaseModel):
 @router.post("", response_model=LoginResponse)
 async def login(
     credentials: LoginCredential,
+    users: UserCRUDDep,
     Authorize: AuthJWT = Depends(),
-    users: UserCRUD = Depends(get_user_crud),
 ) -> LoginResponse:
     """Login user."""
     user = await users.read_by_username(credentials.username)
@@ -51,5 +54,8 @@ async def login(
             status_code=status.HTTP_404_NOT_FOUND, detail="user not found."
         )
 
-    access_token = Authorize.create_access_token(subject=str(user.uid))
+    user_claims = {"is_superuser": user.is_superuser, "is_staff": user.is_staff}
+    access_token = Authorize.create_access_token(
+        subject=str(user.uid), user_claims=user_claims
+    )
     return LoginResponse(access_token=access_token, user=UserRead(**user.dict()))
