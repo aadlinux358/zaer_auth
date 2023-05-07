@@ -72,11 +72,10 @@ async def user(session: AsyncSession) -> UserDB:
 @pytest_asyncio.fixture(scope="function")
 async def headers(user: UserDB) -> Headers:
     """Create test client headers."""
-    user_claims = {
-            'is_superuser': user.is_superuser,
-            'is_staff': user.is_staff
-            }
-    access_token = AuthJWT().create_access_token(subject=str(user.uid), user_claims=user_claims)
+    user_claims = {"is_superuser": user.is_superuser, "is_staff": user.is_staff}
+    access_token = AuthJWT().create_access_token(
+        subject=str(user.uid), user_claims=user_claims
+    )
     headers = Headers({"Authorization": f"Bearer {access_token}"})
     return headers
 
