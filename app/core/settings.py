@@ -1,7 +1,7 @@
 """Auth service application settings module."""
-from typing import Union
+from urllib.parse import quote_plus
 
-from pydantic import BaseSettings, PostgresDsn
+from pydantic import BaseSettings, validator
 
 from app.security import keys
 
@@ -17,12 +17,13 @@ class Settings(BaseSettings):
     description: str
 
     # Database
-    async_db_connection_string: Union[PostgresDsn, str]
-    async_test_db_connection_string: Union[PostgresDsn, str]
     pg_user: str
     pg_password: str
     pg_server: str
     pg_db: str
+    pg_port: int
+    pg_test_db: str
+    pg_test_port: int
 
     # auth
     pem_key_file_path: str
@@ -37,6 +38,12 @@ class Settings(BaseSettings):
     authjwt_public_key: str = keys.get_assymetric_key(key="public")  # type: ignore
     authjwt_private_key: str = keys.get_assymetric_key(key="private")  # type: ignore
     authjwt_algorithm: str
+
+    @validator("pg_user", "pg_password", "pg_server", "pg_db", "pg_test_db")
+    def url_encode(cls, v):
+        """Url quote strings."""
+        v = quote_plus(v)
+        return v
 
     class Config:
         """Further settings customization config class."""

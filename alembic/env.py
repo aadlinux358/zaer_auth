@@ -77,7 +77,8 @@ def get_url() -> str:
     password = settings.pg_password
     server = settings.pg_server
     db = settings.pg_db
-    return f"postgresql+asyncpg://{user}:{password}@{server}/{db}"
+    port = settings.pg_port
+    return f"postgresql+asyncpg://{user}:{password}@{server}:{port}/{db}"
 
 
 async def run_migrations_online() -> None:
