@@ -30,7 +30,7 @@ class LoginResponse(BaseModel):
     user: UserRead
 
 
-@router.post("", response_model=LoginResponse)
+@router.post("", response_model=LoginResponse, status_code=status.HTTP_201_CREATED)
 async def login(
     credentials: LoginCredential,
     users: UserCRUDDep,

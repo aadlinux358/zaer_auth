@@ -34,7 +34,7 @@ async def test_login(client: AsyncClient, session: AsyncSession):
     payload = dict(username="haile123", password="hailepassword")
     response = await client.post(f"{ENDPOINT}", json=payload)
 
-    assert response.status_code == status.HTTP_200_OK, response.json()
+    assert response.status_code == status.HTTP_201_CREATED, response.json()
     assert response.json()["access_token"]
     assert response.json()["user"]["username"] == "haile123"
     assert response.json()["user"]["last_login"]
