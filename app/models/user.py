@@ -16,7 +16,7 @@ class UserBase(SQLModel):
     username: str = Field(max_length=100, unique=True, index=True, nullable=False)
     email: str = Field(max_length=100, unique=True, index=True, nullable=False)
     is_superuser: bool = Field(default=False, nullable=False)
-    is_staff: bool = Field(default=True, nullable=False)
+    is_staff: bool = Field(default=False, nullable=False)
     is_active: bool = Field(default=True, nullable=False)
     last_login: Optional[datetime] = Field(nullable=True)
 
