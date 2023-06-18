@@ -45,6 +45,10 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="invalid username or password.",
         )
+    if user and user.is_active is False:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="inactive user."
+        )
     user = await users.update_user(
         user.uid, payload=UserUpdate(last_login=datetime.now(), modified_by=user.uid)
     )
@@ -54,7 +58,11 @@ async def login(
             status_code=status.HTTP_404_NOT_FOUND, detail="user not found."
         )
 
-    user_claims = {"is_superuser": user.is_superuser, "is_staff": user.is_staff}
+    user_claims = {
+        "is_superuser": user.is_superuser,
+        "is_staff": user.is_staff,
+        "is_active": user.is_active,
+    }
     access_token = Authorize.create_access_token(
         subject=str(user.uid), user_claims=user_claims
     )

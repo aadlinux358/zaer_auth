@@ -35,6 +35,11 @@ async def superuser_or_error(user_claims: Optional[dict]) -> None:
             status_code=status.HTTP_401_UNAUTHORIZED, detail="insufficient privileges."
         )
 
+    if not user_claims.get("is_active"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="inactive user."
+        )
+
 
 @router.post("", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 async def create_user(
