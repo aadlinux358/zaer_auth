@@ -18,19 +18,23 @@ class UserBase(SQLModel):
     is_superuser: bool = Field(default=False, nullable=False)
     is_staff: bool = Field(default=False, nullable=False)
     is_active: bool = Field(default=True, nullable=False)
-    last_login: Optional[datetime] = Field(nullable=True)
 
 
-class UserCreate(UserBase):
-    """User create model."""
+class UserCreateBase(UserBase):
+    """User create base model."""
 
     password: str = Field(max_length=500, nullable=False)
+
+
+class UserCreate(UserCreateBase):
+    """User create model."""
+
     created_by: UUID
     modified_by: UUID
 
 
-class UserUpdate(SQLModel):
-    """User update model."""
+class UserUpdateBase(SQLModel):
+    """User update base model."""
 
     first_name: Optional[str]
     last_name: Optional[str]
@@ -41,6 +45,11 @@ class UserUpdate(SQLModel):
     is_staff: Optional[bool]
     is_active: Optional[bool]
     last_login: Optional[datetime]
+
+
+class UserUpdate(UserUpdateBase):
+    """User update model."""
+
     modified_by: UUID
 
 
@@ -49,6 +58,7 @@ class UserDB(Base, UserBase, table=True):
 
     __tablename__: ClassVar[Union[str, Callable[..., str]]] = "auth_user"
     hashed_password: str = Field(max_length=500, nullable=False)
+    last_login: datetime = Field(nullable=True)
 
 
 class UserRead(UserBase):

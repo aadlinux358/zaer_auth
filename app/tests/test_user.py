@@ -19,8 +19,6 @@ USER_TEST_DATA: Final = {
     "username": "user1",
     "password": "password",
     "email": "user1@zaer.com",
-    "created_by": USER_ID,
-    "modified_by": USER_ID,
 }
 
 
@@ -171,7 +169,6 @@ async def test_can_update_user(client: AsyncClient, session: AsyncSession):
         username="xavier",
         password="newpassword",
         is_superuser=True,
-        modified_by=USER_ID,
     )
 
     response = await client.patch(f"{ENDPOINT}/{user.uid}", json=payload)
